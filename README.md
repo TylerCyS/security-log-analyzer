@@ -11,3 +11,4 @@ Program reads sample.log, prints the following: total failed logins, failed logi
 
 ## Note
 In early development, future versions will include expanded suite of tools such as detection of many successive fails, fails within time frame, etc
+Support for JSON files coming as well
