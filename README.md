@@ -9,10 +9,10 @@ paste code:
 mvn compile
 java -cp target/classes com.tylercys.Main
 ```
-Program reads sample.log, prints the following: total failed logins, failed logins of user admin, total login attempts from an ip, and total login attempts from an account
+Program reads sample.log, uses a CLI class to present menu of options. User can choose from menu, which prompts further text input. CLI calls LoginAnalyzer.java to get the requested data, prints it to the command line.
 
 
 
 ## Note
-In early development, future versions will include expanded suite of tools such as detection of many successive fails, fails within time frame, etc  
+In early development, future versions will include expanded suite of tools
 Support for JSON files coming as well
