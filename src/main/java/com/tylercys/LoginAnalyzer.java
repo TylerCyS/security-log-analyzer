@@ -52,9 +52,9 @@ public class LoginAnalyzer {
     }
 
     //returns an ArrayList of failed login attempts for a specific account that have occurred more than the threshold number of times within the timeWindow (in minutes)
-    public static ArrayList<Double> areRepeatedFailedLogins(ArrayList<LoginAttempt> allLogins, String account, int threshold, int timeWindow) {
+    public static ArrayList<String> areRepeatedFailedLogins(ArrayList<LoginAttempt> allLogins, String account, int threshold, int timeWindow) {
         ArrayList<LoginAttempt> failedLoginsForAccount = getFailedLogins(allLogins, account);
-        ArrayList<Double> failTimeframes = new ArrayList<>();
+        ArrayList<String> failTimeframes = new ArrayList<>();
         for (int i = 0; i < failedLoginsForAccount.size(); i++) {
 
             String currentTimestamp = failedLoginsForAccount.get(i).getTimestamp();
@@ -69,16 +69,16 @@ public class LoginAnalyzer {
                 offset++;
             }
             if (failCount >= threshold){
-                failTimeframes.add(currentTime);
+                failTimeframes.add(timestampFromMinutes(currentTime));
             }
         }
         return failTimeframes;
     }
 
     //returns an ArrayList of failed login attempts for all accounts that have occurred more than the threshold number of times within the timeWindow (in minutes)
-    public static ArrayList<Double> areRepeatedFailedLogins(ArrayList<LoginAttempt> allLogins, int threshold, int timeWindow) {
+    public static ArrayList<String> areRepeatedFailedLogins(ArrayList<LoginAttempt> allLogins, int threshold, int timeWindow) {
         ArrayList<LoginAttempt> failedLogins = getFailedLogins(allLogins);
-        ArrayList<Double> failTimeframes = new ArrayList<>();
+        ArrayList<String> failTimeframes = new ArrayList<>();
 
         // Create a list of unique accounts from the failed logins
         ArrayList<String> totalAccounts = new ArrayList<>();
@@ -108,7 +108,7 @@ public class LoginAnalyzer {
                     offset++;
                 }
                 if (failCount >= threshold){
-                    failTimeframes.add(currentTime);
+                    failTimeframes.add(timestampFromMinutes(currentTime));
                 }
             }
         }
@@ -116,11 +116,22 @@ public class LoginAnalyzer {
     }
 
     //helper method to convert timestamp to minutes since midnight
-    private static double minutesSinceMidnight(String timestamp) {
+    public static double minutesSinceMidnight(String timestamp) {
         int hours = Integer.parseInt(timestamp.substring(11, 13));
         int minutes = Integer.parseInt(timestamp.substring(14, 16));
         int seconds = Integer.parseInt(timestamp.substring(17, 19));
 
         return (hours * 3600 + minutes * 60 + seconds)/60.0;
+    }
+
+    //helper method to convert minutes since midnight to timestamp
+    private static String timestampFromMinutes(double minutes) {
+        int totalSeconds = (int) (minutes * 60);
+        int hours = totalSeconds / 3600;
+        int remainingSeconds = totalSeconds % 3600;
+        int mins = remainingSeconds / 60;
+        int secs = remainingSeconds % 60;
+
+        return String.format("2023-01-01T%02d:%02d:%02dZ", hours, mins, secs);
     }
 }
