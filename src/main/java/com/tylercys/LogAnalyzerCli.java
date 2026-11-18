@@ -82,22 +82,22 @@ public class LogAnalyzerCli {
 
             // runs for all accounts if the user enters an empty string for the account name
             if (account.isEmpty()) {
-                ArrayList<Double> repeatedFailedLogins = LoginAnalyzer.areRepeatedFailedLogins(loginAttempts, threshold, timeWindow);
+                ArrayList<String> repeatedFailedLogins = LoginAnalyzer.areRepeatedFailedLogins(loginAttempts, threshold, timeWindow);
                 if (repeatedFailedLogins.isEmpty()) {
                     System.out.println("No repeated failed login attempts found.");
                 } else {
                     System.out.println("Repeated failed login attempts found at the following times:");
-                    for (Double time : repeatedFailedLogins) {
-                        System.out.printf("%.2f minutes since midnight ", time);
-                        System.out.println("(account: " + LoginAnalyzer.getLogin(loginAttempts, time) + ")");
+                    for (String time : repeatedFailedLogins) {
+                        System.out.print(time);
+                        System.out.println("(account: " + LoginAnalyzer.getLogin(loginAttempts, LoginAnalyzer.minutesSinceMidnight(time)) + ")");
                     }
                 }
             }
              else {
-                ArrayList<Double> repeatedFailedLogins = LoginAnalyzer.areRepeatedFailedLogins(loginAttempts, account, threshold, timeWindow);
+                ArrayList<String> repeatedFailedLogins = LoginAnalyzer.areRepeatedFailedLogins(loginAttempts, account, threshold, timeWindow);
                 System.out.println("Repeated failed login attempts found for account " + account + " at the following times:");
-                for (Double time : repeatedFailedLogins) {
-                    System.out.printf("%.2f minutes since midnight\n", time);
+                for (String time : repeatedFailedLogins) {
+                    System.out.println(time);
                 }
             }
         }

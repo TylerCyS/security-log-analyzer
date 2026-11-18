@@ -1,31 +1,47 @@
 package com.tylercys;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import java.io.Reader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
-        //read file, initialize LoginAttempt objects, and store them in an ArrayList
-        Path logFile = Path.of("sample.log");
-        try {
-            List<String> lines = Files.readAllLines(logFile);
-            ArrayList<LoginAttempt> loginAttempts = new ArrayList<>(lines.size());
-            for (String line : lines) {
-                String[] parts = line.split(" ");
-                if (parts.length == 4) {
-                    LoginAttempt attempt = new LoginAttempt(parts[0], parts[1].substring("account=".length()), parts[2].substring("source=".length()), parts[3].substring("result=".length()));
-                    loginAttempts.add(attempt);
-                } else {
-                    System.err.println("Invalid log entry: " + line);
+        // Read only the fields needed to construct login attempts.
+        Path logFile = Path.of("log.json");
+        Gson gson = new GsonBuilder().setStrictness(com.google.gson.Strictness.STRICT).create();
+        try (Reader reader = Files.newBufferedReader(logFile)) {
+            LogEntry[] entries = gson.fromJson(reader, LogEntry[].class);
+            if (entries == null) {
+                throw new JsonParseException("Expected an array of login attempts");
+            }
+            ArrayList<LoginAttempt> loginAttempts = new ArrayList<>(entries.length);
+            for (LogEntry entry : entries) {
+                if (entry == null || entry.timestamp == null || entry.account == null
+                        || entry.source == null || !("SUCCESS".equals(entry.result)
+                        || "FAILURE".equals(entry.result))) {
+                    throw new JsonParseException("Invalid login entry: timestamp, account, source, and a SUCCESS/FAILURE result are required");
                 }
+                loginAttempts.add(new LoginAttempt(entry.timestamp, entry.account, entry.source, entry.result));
             }
             new LogAnalyzerCli().run(loginAttempts);
         }
         catch (IOException e) {
             System.err.println("Error reading log file: " + e.getMessage());
         }
+        catch (JsonParseException e) {
+            System.err.println("Error parsing log file: " + e.getMessage());
+        }
+    }
+
+    private static class LogEntry {
+        String timestamp;
+        String account;
+        String source;
+        String result;
     }
 }
